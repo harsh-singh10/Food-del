@@ -1,7 +1,15 @@
 import React from 'react'
 import "./Home.css"
-export const Home = () => {
+import Header from '../../components/Navbar/Header/Header'
+
+
+
+const Home = () => {
   return (
-    <div>Home</div>
+    <div>
+      <Header />
+    </div>
   )
 }
+
+export default Home
