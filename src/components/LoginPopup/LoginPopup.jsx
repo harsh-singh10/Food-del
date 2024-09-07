@@ -40,6 +40,7 @@ const LoginPopup = ({setShowLogin}) => {
             setToken(response.data.token);
             localStorage.setItem("token" , response.data.token);
             setShowLogin(false);
+             window.location.reload();  // Reloads the page after login
         }
         else{
             alert(response.data.message);
