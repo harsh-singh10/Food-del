@@ -24,30 +24,41 @@ const LoginPopup = ({setShowLogin}) => {
         setData(data=> ({...data,[name]:value}))
     }
     
-    const onLogin = async (e)=>{
+    const onLogin = async (e) => {
         e.preventDefault();
-        let newUrl = url;
-        if(currState === "Login"){
-            newUrl+="api/user/login"
+    
+        let newUrl = url;  // Ensure 'url' contains the correct base URL (e.g., 'http://localhost:4000/')
+        if (currState === "Login") {
+            newUrl += "api/user/login";
+        } else {
+            newUrl += "api/user/register";
         }
-        else{
-            newUrl += "api/user/register"
+    
+        try {
+            const response = await axios.post(newUrl, data, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            if (response.data.success) {
+                setToken(response.data.token);
+                localStorage.setItem("token", response.data.token);
+                setShowLogin(false);
+                window.location.reload();  // Reloads the page after login
+            } else {
+                alert(response.data.message || "Invalid userId or password");
+            }
+        } catch (error) {
+            // Log and display error for debugging
+            console.error("Login Error:", error);
+            if (error.response && error.response.data) {
+                alert(error.response.data.message || "An error occurred. Please try again.");
+            } else {
+                alert("Network error. Please check your connection and try again.");
+            }
         }
-
-        const response = await axios.post(newUrl,data)
-
-        if(response.data.success){
-            setToken(response.data.token);
-            localStorage.setItem("token" , response.data.token);
-            setShowLogin(false);
-             window.location.reload();  // Reloads the page after login
-        }
-        else{
-            alert(response.data.message);
-        }
-
-    }
-
+    };
     
 
   return (

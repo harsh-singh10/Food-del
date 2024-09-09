@@ -7,6 +7,18 @@ const Cart = () => {
   const { cartItems, food_list, removeFromCart, getTotalCartAmount,url } = useContext(StoreContext);
   const navigate = useNavigate(); // Define navigate using useNavigate hook
 
+  const deliveryFee = ()=>{
+    if(getTotalCartAmount() == 0){
+        return 0;
+    }
+    else if(getTotalCartAmount() < 150){
+        return 5;
+    }
+    else{
+        return 0;
+    }
+}
+
   // Check if the cart is empty
   const isCartEmpty = Object.values(cartItems).every(quantity => quantity === 0);
 
@@ -44,9 +56,9 @@ const Cart = () => {
               <div>
                 <div className="cart-total-details"><p>Subtotal</p><p>${getTotalCartAmount()}</p></div>
                 <hr />
-                <div className="cart-total-details"><p>Delivery Fee</p><p>${getTotalCartAmount() === 0 ? 0 : 5}</p></div>
+                <div className="cart-total-details"><p>Delivery Fee</p><p>${deliveryFee()}</p></div>
                 <hr />
-                <div className="cart-total-details"><b>Total</b><b>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 5}</b></div>
+                <div className="cart-total-details"><b>Total</b><b>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + deliveryFee()}</b></div>
               </div>
               <button onClick={() => navigate('/order')}>PROCEED TO CHECKOUT</button> {/* Use navigate to change route */}
             </div>

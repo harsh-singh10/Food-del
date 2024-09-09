@@ -15,6 +15,9 @@ const StoreContextProvider = (props) => {
     const url = "http://localhost:4000/"
 
     const addToCart = async (itemId) => {
+        if(!token){
+            return alert("you are not login")
+        }
         if (!cartItems[itemId]) {
             setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
         }
