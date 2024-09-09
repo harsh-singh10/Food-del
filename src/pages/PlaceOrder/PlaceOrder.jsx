@@ -1,16 +1,11 @@
-
-import "./PlaceOrder.css"
-import React, { useContext, useEffect, useState } from 'react'
-
-import { assets } from '../../assets/assets';
+import "./PlaceOrder.css";
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StoreContext } from "../../context/StoreContext";
-
+import axios from "axios";
 
 const PlaceOrder = () => {
-
-
-    const { getTotalCartAmount,token,url,food_list,cartItems, } = useContext(StoreContext);
+    const { getTotalCartAmount, token, url, food_list, cartItems,setCartItems } = useContext(StoreContext);
 
     const [data, setData] = useState({
         firstName: "",
@@ -22,37 +17,66 @@ const PlaceOrder = () => {
         zipcode: "",
         country: "",
         phone: ""
-    })
+    });
     const navigate = useNavigate();
 
     const onChangeHandler = (event) => {
-        const name = event.target.name
-        const value = event.target.value
-        setData(data => ({ ...data, [name]: value }))
-    }
+        const name = event.target.name;
+        const value = event.target.value;
+        setData(data => ({ ...data, [name]: value }));
+    };
 
-    const deliveryFee = ()=>{
-        if(getTotalCartAmount() == 0){
-            return 0;
+    const deliveryFee = () => {
+        if (getTotalCartAmount() === 0) return 0;
+        return getTotalCartAmount() < 150 ? 5 : 0;
+    };
+
+    const placeOrder = async (event) => {
+        event.preventDefault();
+
+        let orderItems = [];
+        food_list.forEach((item) => {
+            if (cartItems[item._id] > 0) {
+                let itemInfo = { ...item, quantity: cartItems[item._id] };
+                orderItems.push(itemInfo);
+            }
+        });
+
+        let orderData = {
+            address: data,
+            items: orderItems,
+            amount: getTotalCartAmount() + deliveryFee(),
+        };
+
+        try {
+            let response = await axios.post(url + "api/order/place", orderData, {
+                headers: { token }
+            });
+
+            if (response.data.success) {
+                alert("Order placed successfully!");
+                 setCartItems({})
+                navigate('/myorders');
+                console.log("every thing is good");
+                
+            } else {
+                alert("Error placing order");
+            }
+        } catch (error) {
+            console.error("Error placing order:", error);
+            alert("There was an error placing the order.");
         }
-        else if(getTotalCartAmount() < 150){
-            return 5;
-        }
-        else{
-            return 0;
-        }
-    }
+    };
 
     useEffect(() => {
-     
         if (getTotalCartAmount() === 0) {
-            navigate('/')
+            navigate('/');
         }
-    }, )
+    }, [getTotalCartAmount, navigate]); // Add dependencies to prevent re-running on every render
 
     return (
-        <div className='place-order'>
-               <div className="place-order-left">
+        <form onSubmit={placeOrder} className='place-order'>
+            <div className="place-order-left">
                 <p className='title'>Delivery Information</p>
                 <div className="multi-field">
                     <input type="text" name='firstName' onChange={onChangeHandler} value={data.firstName} placeholder='First name' required />
@@ -71,22 +95,20 @@ const PlaceOrder = () => {
                 <input type="text" name='phone' onChange={onChangeHandler} value={data.phone} placeholder='Phone' required />
             </div>
             <div className="place-order-right">
-            <div className="cart-total">
-          <h2>Cart Totals</h2>
-          <div>
-            <div className="cart-total-details"><p>Subtotal</p><p>${getTotalCartAmount()}</p></div>
-            <hr />
-            <div className="cart-total-details"><p>Delivery Fee</p><p>${deliveryFee()}</p></div>
-            <hr />
-            <div className="cart-total-details"><b>Total</b><b>${getTotalCartAmount()===0?0:getTotalCartAmount()+deliveryFee()}</b></div>
-          </div>
-          <button onClick={()=>navigate('/order')}>PROCEED TO Payment</button>
-        </div>
-            
-
+                <div className="cart-total">
+                    <h2>Cart Totals</h2>
+                    <div>
+                        <div className="cart-total-details"><p>Subtotal</p><p>${getTotalCartAmount()}</p></div>
+                        <hr />
+                        <div className="cart-total-details"><p>Delivery Fee</p><p>${deliveryFee()}</p></div>
+                        <hr />
+                        <div className="cart-total-details"><b>Total</b><b>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + deliveryFee()}</b></div>
+                    </div>
+                    <button type='submit'>PROCEED TO Payment</button> 
+                </div>
             </div>
-        </div>
-    )
-}
+        </form>
+    );
+};
 
-export default PlaceOrder
+export default PlaceOrder;
