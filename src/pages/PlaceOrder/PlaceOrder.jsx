@@ -31,6 +31,10 @@ const PlaceOrder = () => {
         return getTotalCartAmount() < 150 ? 5 : 0;
     };
 
+    const PayNow = () => {
+        alert("We are facing some glitch on online payment use cash on delivery ")
+    }
+
     const placeOrder = async (event) => {
         event.preventDefault();
 
@@ -104,7 +108,8 @@ const PlaceOrder = () => {
                         <hr />
                         <div className="cart-total-details"><b>Total</b><b>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + deliveryFee()}</b></div>
                     </div>
-                    <button type='submit'>PROCEED TO Payment</button> 
+                    <button type='submit'>Cash On Delivery</button> 
+                    <button type='button' onClick={PayNow}  >Pay Now</button> 
                 </div>
             </div>
         </form>
